@@ -1,0 +1,3 @@
+[submodule "direct/GumTreeDiff/gumtree"]
+	path = direct/GumTreeDiff/gumtree
+	url = https://github.com/GumTreeDiff/gumtree

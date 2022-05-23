@@ -1,0 +1,58 @@
+diff --git a/core/src/main/java/com/github/gumtreediff/gen/ExternalProcessTreeGenerator.java b/core/src/main/java/com/github/gumtreediff/gen/ExternalProcessTreeGenerator.java
+index 185c0fe2..86b4648d 100644
+--- a/core/src/main/java/com/github/gumtreediff/gen/ExternalProcessTreeGenerator.java
++++ b/core/src/main/java/com/github/gumtreediff/gen/ExternalProcessTreeGenerator.java
+@@ -21,6 +21,8 @@ package com.github.gumtreediff.gen;
+ 
+ import java.io.*;
+ import java.nio.charset.Charset;
++import java.nio.charset.CharsetDecoder;
++import java.nio.charset.CodingErrorAction;
+ import java.nio.charset.StandardCharsets;
+ import java.nio.file.Files;
+ 
+@@ -32,8 +34,15 @@ public abstract class ExternalProcessTreeGenerator extends TreeGenerator {
+         ProcessBuilder b = new ProcessBuilder(getCommandLine(f.getAbsolutePath()));
+         b.directory(f.getParentFile());
+         Process p = b.start();
++
++        CharsetDecoder dec = StandardCharsets.UTF_8.newDecoder()
++                .onMalformedInput(CodingErrorAction.REPLACE)
++                .onUnmappableCharacter(CodingErrorAction.REPLACE)
++                .replaceWith("?");
++
+         try (BufferedReader br = new BufferedReader(
+-                new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8))) {
++                //new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8))) {
++                new InputStreamReader(p.getInputStream(), dec))) {
+             StringBuilder buf = new StringBuilder();
+             String line = null;
+             while ((line = br.readLine()) != null)
+diff --git a/core/src/main/java/com/github/gumtreediff/gen/TreeGenerator.java b/core/src/main/java/com/github/gumtreediff/gen/TreeGenerator.java
+index 11f5abc3..d9b3e687 100644
+--- a/core/src/main/java/com/github/gumtreediff/gen/TreeGenerator.java
++++ b/core/src/main/java/com/github/gumtreediff/gen/TreeGenerator.java
+@@ -25,6 +25,8 @@ import org.atteo.classindex.IndexSubclasses;
+ 
+ import java.io.*;
+ import java.nio.charset.Charset;
++import java.nio.charset.CharsetDecoder;
++import java.nio.charset.CodingErrorAction;
+ import java.nio.file.Files;
+ import java.nio.file.Path;
+ import java.nio.file.Paths;
+@@ -87,7 +89,13 @@ public abstract class TreeGenerator {
+          * @see Path
+          */
+         public TreeContext file(Path path) throws IOException {
+-            return reader(Files.newBufferedReader(path, charset()));
++            CharsetDecoder dec = charset().newDecoder()
++                    .onMalformedInput(CodingErrorAction.REPLACE)
++                    .onUnmappableCharacter(CodingErrorAction.REPLACE)
++                    .replaceWith("?");
++            InputStreamReader isr = new InputStreamReader(new FileInputStream(path.toFile()), dec);
++            return reader(isr);
++            //return reader(Files.newBufferedReader(path, charset()));
+         }
+ 
+         /**

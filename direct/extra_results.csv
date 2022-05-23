@@ -1,0 +1,11 @@
+fileId,commitId,filePath,algorithm,startPos,isSrc,stmtType,srcStmtLine,dstStmtLine,stmt-inaccurate,token-inaccurate
+10,4f7aeecc1e4ddef019fce57ce474d7f78dcd4552,activemq-core/src/main/java/org/apache/activemq/broker/region/virtual/CompositeDestinationInterceptor.java,da,1984,1,VariableDeclarationStatement,50,53,0,0,,
+12,6da08b245e8b5c728d2fb0795ad922ccc99baf41,activemq-broker/src/main/java/org/apache/activemq/broker/region/virtual/VirtualTopicInterceptor.java,da,5222,1,Block,114,122,0,0,,
+19,ba2447e39ad513ff1a37833887cfd2e9bf49a0b5,activemq-http/src/main/java/org/apache/activemq/transport/WebTransportServerSupport.java,da,2511,1,ExpressionStatement,67,88,0,0,,
+27,6acc164b4125da775cccd4035c1b99e9d404bacd,src/org/junit/tests/AssertionTest.java,da,4287,0,MethodDeclaration,121,126,1,1,,
+47,79b4df582d0035e196d4dc10894778fae58311ce,src/test/java/org/apache/commons/io/comparator/SizeFileComparatorTest.java,da,2654,0,TryStatement,73,-1,1,1,,
+54,d4c5044c7b7697d944a444470a296dcd15911595,src/java/org/apache/commons/io/FilenameUtils.java,da,43690,1,ForStatement,1138,1137,0,0,,
+60,328a7efc17e8c77853fea42a84808dd1d26c8d5a,src/test/org/apache/commons/io/FileCleaningTrackerTestCase.java,da,10663,0,VariableDeclarationStatement,295,-1,0,0,,
+70,6967edc80c5da73e55dc4e0f53805e6f4dad7c09,src/main/java/org/apache/commons/lang3/event/EventListenerSupport.java,da,5006,0,EnhancedForStatement,144,145,0,0,,
+101,7b05f4aed8845d4ccefce71eea438b81be10610e,hibernate-core/src/main/java/org/hibernate/dialect/unique/UniqueDelegate.java,da,3356,0,MethodDeclaration,85,116,0,0,,
+112,783831f113495edb32e41624ac930a4c45ac62ea,hibernate-core/src/main/java/org/hibernate/hql/internal/ast/tree/SelectClause.java,da,4678,0,EnhancedForStatement,148,151,0,0,,

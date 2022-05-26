@@ -1,4 +1,4 @@
-FROM rrj
+FROM mhashimoto/rrj
 
 MAINTAINER mstmhsmt
 
@@ -21,12 +21,15 @@ ENV LC_ALL=en_US.UTF8
 
 RUN set -x && \
     cd /root/direct/GumTreeDiff/gumtree && \
-    git checkout 7925aa5e0e7a221e56b5c83de5156034a8ff394f && \
     patch -p1 < ../gumtree-unicode-fix.patch && \
     ./gradlew build && \
     cp dist/build/distributions/gumtree-3.1.0-SNAPSHOT.zip .. && \
     cd .. && \
     unzip gumtree-3.1.0-SNAPSHOT.zip
+
+RUN set -x && \
+    cd /root/refactoring/GumTree/libs && \
+    ln -s ../../../direct/GumTreeDiff/gumtree-3.1.0-SNAPSHOT/lib/gumtree.jar .
 
 # Cleanup
 

@@ -32,7 +32,7 @@ $ scripts/plot_violin_diff.py
 $ scripts/map_eval.py >& map_eval.log
 ```
 
-The following is taken from DOI:10.5281/zenodo.4281091.
+The following is taken from [DOI:10.5281/zenodo.4281091](https://doi.org/10.5281/zenodo.4281091).
 ```
 DifferentialTesting/expert-results
 ```

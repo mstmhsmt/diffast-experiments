@@ -22,3 +22,5 @@ We recommend using as many CPU cores as possible and assigning at least 4GB memo
 ```
 $ scripts/eval_rrj.sh
 ```
+
+The refactoring oracle `data.json` was taken from [here](http://refactoring.encs.concordia.ca/oracle).

@@ -1,4 +1,4 @@
-# Replication Package for "Diff/AST: A Source Code Differencing Tool for Fine-Grained Structural Change Analysis"
+# Replication Package for "Diff/AST: A Syntax-Aware Source Code Differencing Tool"
 
 This package contains the following.
 * `direct`: For comparing with GumTree directly.

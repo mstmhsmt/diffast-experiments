@@ -3,6 +3,8 @@
 import os
 import csv
 
+from merge_gt_da_results import HEADER
+
 PROJECTS = [
     'activemq',
     'commons-io',
@@ -16,17 +18,10 @@ PROJECTS = [
     'spring-roo'
 ]
 
-HEADER = [
-    'commit', 'path', 'old', 'old_sloc', 'new', 'new_sloc',
-    'gum_time', 'gum_sim', 'gum_col',
-    'dts_time', 'dts_sim', 'dts_col',
-    'ok', 'agree'
-]
-
 
 def merge_csvs():
 
-    out_path = 'out-merged.csv'
+    out_path = 'out.merged.csv'
 
     print(f'dumping into {out_path}...')
 
@@ -38,10 +33,10 @@ def merge_csvs():
 
         for proj in PROJECTS:
 
-            orig_path = f'out-{proj}-merged.csv'
+            orig_path = f'out.{proj}.merged.csv'
 
             if not os.path.exists(orig_path):
-                orig_path = f'out-{proj}.csv'
+                orig_path = f'out.{proj}.csv'
 
             print(f'reading {orig_path}...')
 

@@ -33,6 +33,12 @@ def escape(s):
     return s
 
 
+def unescape(s):
+    if r'\$' in s:
+        s = s.replace(r'\$', '$')
+    return s
+
+
 class PopenContext(object):
     def __init__(self, cmd, rc_check=True):
         self.cmd = cmd
@@ -58,8 +64,8 @@ class PopenContext(object):
             rc = self._po.returncode
             if rc and self.rc_check:
                 if rc != 0:
-                    logger.warning('"{}": terminated abnormally (exitcode={})'
-                                   .format(self.cmd, rc))
+                    logger.warning(f'"{self.cmd}":'
+                                   f' terminated abnormally (exitcode={rc})')
             return True
 
         else:
@@ -85,26 +91,26 @@ def sloccount(path, datadir=None):
     path = escape(path)
 
     cmd = f'{SLOCCOUNT}{opts} "{path}"'
-    logger.debug('cmd="{}"'.format(cmd))
+    logger.debug(f'cmd="{cmd}"')
 
     c = PopenContext(cmd)
     total_sloc = 0
     sloc_tbl = {}
     with c as p:
-        o, _ = p.communicate()
+        (o, e) = p.communicate()
         flag = False
         for _line in o.split('\n'):
             line = _line.strip()
-            logger.debug('line="{}"'.format(line))
+            logger.debug(f'line="{line}"')
 
             if flag:
                 m = PAT.search(line)
                 if m:
                     try:
                         lang = m.group('lang')
-                        logger.debug('LANG="{}"'.format(lang))
+                        logger.debug(f'LANG="{lang}"')
                         sloc = int(m.group('sloc'))
-                        logger.debug('SLOC="{}"'.format(sloc))
+                        logger.debug(f'SLOC="{sloc}"')
                         total_sloc += sloc
 
                         try:
@@ -112,8 +118,8 @@ def sloccount(path, datadir=None):
                         except KeyError:
                             sloc_tbl[lang] = sloc
 
-                    except Exception as e:
-                        logger.warning(f'{e}')
+                    except Exception as exc:
+                        logger.warning(f'{exc}')
                 else:
                     flag = False
                     logger.debug('END')
@@ -142,7 +148,7 @@ def sloccount_str(content):
 
 def sloccount_for_lang(lang, path, datadir=None):
     ll = get_langs(lang)
-    logger.debug('lang="{}" ({})'.format(lang, ','.join(ll)))
+    logger.debug(f'lang="{lang}" ({",".join(ll)})')
     r = sloccount(path, datadir=datadir)
     count = 0
     for lang in ll:
@@ -180,7 +186,7 @@ if __name__ == '__main__':
 
     if args.lang:
         c = sloccount_for_lang(args.lang, args.path)
-        print('{}'.format(c))
+        print(f'{c}')
 
     else:
         sloc = sloccount(args.path)
@@ -188,4 +194,4 @@ if __name__ == '__main__':
         for x in sloc['tbl'].items():
             print('{}: {}'.format(*x))
 
-        print('total: {}'.format(sloc['total']))
+        print(f'total: {sloc["total"]}')

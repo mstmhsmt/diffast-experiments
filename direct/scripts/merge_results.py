@@ -18,8 +18,8 @@ PROJECTS = [
 
 HEADER = [
     'commit', 'path', 'old', 'old_sloc', 'new', 'new_sloc',
-    'gum_time', 'gum_sim', 'gum_col',
-    'dts_time', 'dts_sim', 'dts_col',
+    'gt_time', 'gt_sim', 'gt_col',
+    'da_time', 'da_sim', 'da_col',
     'ok', 'agree'
 ]
 
@@ -30,13 +30,13 @@ def merge_results():
 
         print(f'* {proj}')
 
-        orig_path = f'out-{proj}.csv'
+        orig_path = f'out.{proj}.csv'
         if not os.path.exists(orig_path):
-            orig_path = f'out-sloc-{proj}.csv'
+            orig_path = f'out-sloc.{proj}.csv'
 
-        gt_path = f'out-gumtree-{proj}.csv'
-        da_path = f'out-diffast-{proj}.csv'
-        out_path = f'out-{proj}-merged.csv'
+        gt_path = f'out-gumtree.{proj}.csv'
+        da_path = f'out-diffast.{proj}.csv'
+        out_path = f'out.{proj}.merged.csv'
 
         if any([not os.path.exists(p) for p in (gt_path, da_path, orig_path)]):
             print('NOT FOUND')
@@ -54,11 +54,11 @@ def merge_results():
                 old = row['old']
                 new = row['new']
 
-                gum_time = row['gum_time']
-                gum_sim = row['gum_sim']
-                gum_col = row['gum_col']
+                gt_time = row['gt_time']
+                gt_sim = row['gt_sim']
+                gt_col = row['gt_col']
 
-                d = {'gum_time': gum_time, 'gum_sim': gum_sim, 'gum_col': gum_col}
+                d = {'gt_time': gt_time, 'gt_sim': gt_sim, 'gt_col': gt_col}
 
                 gt_tbl[(commit, path, old, new)] = d
 
@@ -74,11 +74,11 @@ def merge_results():
                 old = row['old']
                 new = row['new']
 
-                dts_time = row['dts_time']
-                dts_sim = row['dts_sim']
-                dts_col = row['dts_col']
+                da_time = row['da_time']
+                da_sim = row['da_sim']
+                da_col = row['da_col']
 
-                d = {'dts_time': dts_time, 'dts_sim': dts_sim, 'dts_col': dts_col}
+                d = {'da_time': da_time, 'da_sim': da_sim, 'da_col': da_col}
 
                 da_tbl[(commit, path, old, new)] = d
 
@@ -99,20 +99,20 @@ def merge_results():
                 d = da_tbl[key]
                 g = gt_tbl[key]
 
-                row['gum_time'] = g['gum_time']
-                row['gum_sim'] = g['gum_sim']
-                row['gum_col'] = g['gum_col']
+                row['gt_time'] = g['gt_time']
+                row['gt_sim'] = g['gt_sim']
+                row['gt_col'] = g['gt_col']
 
-                row['dts_time'] = d['dts_time']
-                row['dts_sim'] = d['dts_sim']
-                row['dts_col'] = d['dts_col']
+                row['da_time'] = d['da_time']
+                row['da_sim'] = d['da_sim']
+                row['da_col'] = d['da_col']
 
-                row['ok'] = row['gum_col'] >= row['dts_col'] and row['gum_sim'] <= row['dts_sim']
-                row['agree'] = row['gum_col'] == row['dts_col'] and row['gum_sim'] == row['dts_sim']
+                row['ok'] = row['gt_col'] >= row['da_col'] and row['gt_sim'] <= row['da_sim']
+                row['agree'] = row['gt_col'] == row['da_col'] and row['gt_sim'] == row['da_sim']
 
                 rows.append(row)
 
-        print('{} rows merged'.format(len(rows)))
+        print(f'{len(rows)} rows merged')
 
         print(f'dumping into {out_path}...')
 

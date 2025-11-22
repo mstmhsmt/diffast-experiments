@@ -18,7 +18,9 @@ PROJECTS = [
 ]
 
 HEADER = [
-    'commit', 'path', 'old', 'old_sloc', 'new', 'new_sloc',
+    'commit', 'path',
+    'old', 'old_sloc',
+    'new', 'new_sloc',
     'sim', 'col', 'time', 'time_ratio', 'tool'
 ]
 
@@ -39,13 +41,17 @@ def conv(in_path, out_path):
             old_sloc = row['old_sloc']
             new_sloc = row['new_sloc']
 
-            gum_time = float(row['gum_time'])
-            gum_sim = float(row['gum_sim'])
-            gum_col = int(row['gum_col'])
+            try:
+                gt_time = float(row['gt_time'])
+                gt_sim = float(row['gt_sim'])
+                gt_col = int(row['gt_col'])
 
-            dts_time = float(row['dts_time'])
-            dts_sim = float(row['dts_sim'])
-            dts_col = int(row['dts_col'])
+                da_time = float(row['da_time'])
+                da_sim = float(row['da_sim'])
+                da_col = int(row['da_col'])
+            except Exception:
+                print(f'! {commit} {path}')
+                raise
 
             d = {
                 'commit': commit,
@@ -56,21 +62,21 @@ def conv(in_path, out_path):
                 'new_sloc': new_sloc,
             }
 
-            gum_row = d.copy()
-            gum_row['tool'] = 'gumtree'
-            gum_row['sim'] = gum_sim
-            gum_row['col'] = gum_col
-            gum_row['time'] = gum_time
-            gum_row['time_ratio'] = gum_time / dts_time
-            rows.append(gum_row)
+            gt_row = d.copy()
+            gt_row['tool'] = 'gumtree'
+            gt_row['sim'] = gt_sim
+            gt_row['col'] = gt_col
+            gt_row['time'] = gt_time
+            gt_row['time_ratio'] = gt_time / da_time
+            rows.append(gt_row)
 
-            dts_row = d.copy()
-            dts_row['tool'] = 'diffast'
-            dts_row['sim'] = dts_sim
-            dts_row['col'] = dts_col
-            dts_row['time'] = dts_time
-            dts_row['time_ratio'] = gum_time / dts_time
-            rows.append(dts_row)
+            da_row = d.copy()
+            da_row['tool'] = 'diffast'
+            da_row['sim'] = da_sim
+            da_row['col'] = da_col
+            da_row['time'] = da_time
+            da_row['time_ratio'] = gt_time / da_time
+            rows.append(da_row)
 
         nrows = len(rows)
 
@@ -86,15 +92,15 @@ def conv(in_path, out_path):
 
 
 def conv_all():
-    in_path = 'out-merged.csv'
-    out_path = 'out-converted.csv'
+    in_path = 'out.merged.csv'
+    out_path = 'out.converted.csv'
 
     conv(in_path, out_path)
 
     for proj in PROJECTS:
-        in_path = f'out-{proj}-merged.csv'
+        in_path = f'out.{proj}.merged.csv'
         if os.path.exists(in_path):
-            out_path = f'out-{proj}-converted.csv'
+            out_path = f'out.{proj}.converted.csv'
             conv(in_path, out_path)
 
 

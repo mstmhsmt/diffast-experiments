@@ -10,7 +10,7 @@ import os
 from subprocess import run
 import time
 
-from shootout import GUMTREE_CMD
+from common import GUMTREE_CMD
 
 NULL_JAVA = 'null.java'
 
@@ -39,15 +39,17 @@ def plot(in_csv, out_file, linear=False):
 
     df = pd.read_csv(in_csv)
 
-    GUMTREE_INIT_TIME = get_gumtree_init_time()
+    if False:
+        GUMTREE_INIT_TIME = get_gumtree_init_time()
+    else:
+        GUMTREE_INIT_TIME = 0
 
-    df['time'].where(df['tool'] == 'diffast',
-                     df['time']-GUMTREE_INIT_TIME,
-                     inplace=True)
+    df['time'] = df['time'].where(df['tool'] == 'diffast',
+                                  df['time']-GUMTREE_INIT_TIME)
 
     # df = df.query('(old_sloc + new_sloc) / 2.0 > 100.0')
 
-    print('data size: {}'.format(len(df)))
+    print(f'data size: {len(df)}')
 
     sns.set_theme(style="ticks", palette="Blues")
 
@@ -65,15 +67,17 @@ def plot(in_csv, out_file, linear=False):
     ax.yaxis.set_major_formatter(FormatStrFormatter("%d"))
 
     sns.violinplot(data=df, x='tool', y='time', inner=None,
-                   showfliers=False, gridsize=2000,
+                   gridsize=2000,
                    linewidth=0, width=0.95, ax=ax)
 
     boxprops = {'facecolor': 'none', 'zorder': 3}
     meanprops = {'marker': 'x', 'markeredgecolor': 'black'}
 
     bp = sns.boxplot(data=df, x='tool', y='time', boxprops=boxprops,
-                     fliersize=2, palette='Dark2',
-                     showmeans=True, meanprops=meanprops,
+                     fliersize=2, palette='Dark2', hue='tool', legend=False,
+                     showmeans=True,
+                     meanprops=meanprops,
+                     # showfliers=False,
                      width=0.1, linewidth=1, ax=ax)
 
     means = df.groupby(['tool'])['time'].mean()
@@ -118,11 +122,13 @@ def plot(in_csv, out_file, linear=False):
     tool_tbl = {'diffast': 'Diff/AST', 'gumtree': 'GumTree'}
 
     fontdict = {'fontsize': 'large'}
-    bp.set_xticklabels([tool_tbl[t] for t in tools], fontdict=fontdict)
+
+    ax.set_xticks([t.get_position()[0] for t in _tools],
+                  labels=[tool_tbl[t] for t in tools],
+                  fontdict=fontdict)
 
     ax.set_xlabel(None)
-
-    ax.set_ylabel('Time')
+    ax.set_ylabel('Time', fontdict=fontdict)
 
     # f.tight_layout()
 
@@ -138,7 +144,7 @@ if __name__ == '__main__':
                             formatter_class=ArgumentDefaultsHelpFormatter)
 
     parser.add_argument('-i', '--input', dest='in_csv', type=str,
-                        default='out-converted.csv',
+                        default='out.converted.csv',
                         help='specify input CSV file')
 
     parser.add_argument('-o', '--output', dest='out_file', type=str,

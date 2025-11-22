@@ -1,6 +1,6 @@
-FROM mhashimoto/rrj
+FROM mhashimoto/rrj:devel
 
-MAINTAINER mstmhsmt
+LABEL maintainer="mstmhsmt"
 
 WORKDIR /root
 
@@ -13,7 +13,7 @@ RUN set -x && \
     apt-get update && \
     env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
             gradle \
-            openjdk-11-jdk \
+            openjdk-17-jdk \
             python3-pandas \
             python3-seaborn
 
@@ -23,13 +23,14 @@ RUN set -x && \
     cd /root/direct/GumTreeDiff/gumtree && \
     patch -p1 < ../gumtree-unicode-fix.patch && \
     ./gradlew build && \
-    cp dist/build/distributions/gumtree-3.1.0-SNAPSHOT.zip .. && \
+    cp dist/build/distributions/gumtree-*-SNAPSHOT.zip .. && \
     cd .. && \
-    unzip gumtree-3.1.0-SNAPSHOT.zip
+    unzip gumtree-*-SNAPSHOT.zip
 
 RUN set -x && \
+    mkdir /root/refactoring/GumTree/libs && \
     cd /root/refactoring/GumTree/libs && \
-    ln -s ../../../direct/GumTreeDiff/gumtree-3.1.0-SNAPSHOT/lib/gumtree.jar .
+    ln -s ../../../direct/GumTreeDiff/gumtree-*-SNAPSHOT/lib/gumtree.jar .
 
 # Cleanup
 

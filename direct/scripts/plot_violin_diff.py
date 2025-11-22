@@ -13,20 +13,21 @@ def plot(in_csv, out_file, linear=False):
 
     # df = df.query('old_sloc > 1000')
 
-    print('data size: {}'.format(len(df)))
-
     sns.set_theme(style="ticks", palette="Blues")
 
     f, ax = plt.subplots(figsize=(8, 8))
 
     if not linear:
+        df = df.query('col > 0')
         ax.set_yscale('log')
+
+    print(f'data size: {len(df)}')
 
     plt.tick_params(axis='y', which='major', length=8)
     ax.yaxis.set_major_formatter(FormatStrFormatter("%d"))
 
     sns.violinplot(data=df, x='tool', y='col', inner=None,
-                   showfliers=False, gridsize=6000,
+                   gridsize=6000,
                    linewidth=0, width=0.95, ax=ax)
 
     boxprops = {'facecolor': 'none', 'zorder': 3}
@@ -34,7 +35,9 @@ def plot(in_csv, out_file, linear=False):
 
     bp = sns.boxplot(data=df, x='tool', y='col', boxprops=boxprops,
                      fliersize=2, palette='Dark2',
-                     showmeans=True, meanprops=meanprops,
+                     showmeans=True,
+                     meanprops=meanprops,
+                     # showfliers=False,
                      width=0.1, linewidth=1, ax=ax)
 
     means = df.groupby(['tool'])['col'].mean()
@@ -83,7 +86,7 @@ def plot(in_csv, out_file, linear=False):
 
     ax.set_xlabel(None)
 
-    ax.set_ylabel('Difference (edited text region size)')
+    ax.set_ylabel('Difference (edited text region size)', fontdict=fontdict)
 
     # f.tight_layout()
 
@@ -99,7 +102,7 @@ if __name__ == '__main__':
                             formatter_class=ArgumentDefaultsHelpFormatter)
 
     parser.add_argument('-i', '--input', dest='in_csv', type=str,
-                        default='out-converted.csv',
+                        default='out.converted.csv',
                         help='specify input CSV file')
 
     parser.add_argument('-o', '--output', dest='out_file', type=str,

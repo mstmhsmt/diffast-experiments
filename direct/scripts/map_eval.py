@@ -12,7 +12,7 @@ import logging
 logger = logging.getLogger()
 
 
-DIFFAST_CMD = '/opt/cca/bin/diffast.opt'
+DIFFAST_CMD = '/opt/cca/bin/diffast_.exe'
 
 
 HEADER = ('fileId',
@@ -285,8 +285,8 @@ class Evaluator(object):
 
                     cond0 = (a_srcStmtLine, a_dstStmtLine) in src_dst_set
                     cond1 = a_srcStmtLine < 0 and dst_tbl.get(a_dstStmtLine, None) is None
-                    cond2 = a_srcStmtLine >= 0 and src_tbl.get(a_srcStmtLine, None) is None \
-                        and a_dstStmtLine < 0
+                    cond2 = a_srcStmtLine >= 0 and \
+                        src_tbl.get(a_srcStmtLine, None) is None and a_dstStmtLine < 0
                     if cond0 or cond1 or cond2:
                         if not inacc_gotten_flag_tbl[annotator]:
                             a_ = dict(a)
@@ -300,13 +300,9 @@ class Evaluator(object):
 
             for alg, cnt in count_tbl.items():
                 if cnt < 3:
-                    mac = 3 - cnt
-                    # logger.info(f'missing_annot_count_tbl[{alg}] += {mac}')
-                    missing_annot_count_tbl[alg] += mac
+                    missing_annot_count_tbl[alg] += 3 - cnt
                 elif cnt > 3:
-                    mac = cnt - 3
-                    # logger.info(f'missing_annot_count_tbl[{alg}] += {mac}')
-                    extra_annot_count_tbl[alg] += mac
+                    extra_annot_count_tbl[alg] += cnt - 3
 
             if no_extra_flag:
                 for a_ in al_:
@@ -320,7 +316,7 @@ class Evaluator(object):
 
                 if len(al_) < 3:
                     mac = 3 - len(al_)
-                    logger.info(f'missing_annot_count_tbl[da] += {mac}')
+                    logger.info(f'[{count}] missing_annot_count_tbl[da] += {mac}')
                     missing_annot_count_tbl['da'] += mac
                     missing_tbl[count] = self.get_disp()
 
@@ -364,13 +360,118 @@ class Evaluator(object):
                 print(f'    {algo}: {ic}/{total}={r:3.2f}%')
 
 
+class Evaluator2(object):
+    def __init__(self, summary_path, samples_path, cache_dir=None):
+        self.summary_path = summary_path
+        self.samples_path = samples_path
+        self.index_tbl = {}
+        self.proj_tbl = None
+        self.cache_dir = cache_dir
+
+        logger.info('creating index table...')
+        for proj in os.listdir(samples_path):
+            idx_path = os.path.join(samples_path, proj, 'index.csv')
+            with open(idx_path, newline='') as f:
+                for row in csv.DictReader(f):
+                    key = (row['commit'], row['path'])
+                    self.index_tbl[key] = (proj, row['old'], row['new'])
+        logger.info('done.')
+
+        logger.info('loading experts\' results summary')
+        with open(self.summary_path) as f:
+            self.proj_tbl = json.load(f)
+        logger.info('done.')
+
+    def eval(self, use_cache=True):
+        count = 0
+
+        count_tbl = {'gt': 0, 'mtdiff': 0, 'ijm': 0, 'da': 0}
+
+        for proj, t0 in self.proj_tbl.items():
+            for commit, t1 in t0.items():
+                for fpath, t2 in t1.items():
+                    for startPos, d in t2.items():
+
+                        srcStmtLine = d.get('srcStmtLine', None)
+                        dstStmtLine = d.get('dstStmtLine', None)
+                        stmtType = d['stmtType']
+
+                        if srcStmtLine is not None and dstStmtLine is not None:
+                            count += 1
+
+                            jl = d['judgments']
+
+                            algos = set()
+
+                            gt_add = 0
+
+                            for j in jl:
+                                algo = j['algo']
+                                if algo not in algos:
+                                    algos.add(algo)
+                                    if j['srcStmtLine'] == srcStmtLine and \
+                                       j['dstStmtLine'] == dstStmtLine:
+                                        count_tbl[algo] += 1
+                                        if algo == 'gt':
+                                            gt_add = 1
+
+                            proj, fn0, fn1 = self.index_tbl[(commit, fpath)]
+
+                            path0 = os.path.join(self.samples_path, proj, '0', fn0)
+                            path1 = os.path.join(self.samples_path, proj, '1', fn1)
+
+                            diffast_map = diffast(path0, path1,
+                                                  use_cache=use_cache,
+                                                  cache_dir=self.cache_dir)
+
+                            da_add = 0
+                            da_has_map = False
+
+                            for src, dst in diffast_map:
+                                # src_so = src['start_offset']
+                                src_sl = src['start_line']
+                                src_lab = src['label']
+                                dst_sl = dst['start_line']
+                                dst_lab = dst['label']
+
+                                if check_label(stmtType, src_lab) and \
+                                   check_label(stmtType, dst_lab):
+                                    if src_sl == srcStmtLine and dst_sl == dstStmtLine:
+                                        da_add = 1
+                                        break
+                                    elif src_sl == srcStmtLine or dst_sl == dstStmtLine:
+                                        da_has_map = True
+
+                            if da_add == 0 and not da_has_map and \
+                               (srcStmtLine < 0 or dstStmtLine < 0):
+                                da_add = 1
+
+                            if da_add == 0 and gt_add == 1:
+                                logger.warning(f'{proj}:{commit}:{fpath}:{startPos}:'
+                                               f'{srcStmtLine}-{dstStmtLine}')
+                                logger.warning(f'  {path0} {path1}')
+
+                            count_tbl['da'] += da_add
+
+        for algo, c in count_tbl.items():
+            print('{}: {}/{} ({:.2f}%)'.format(algo, c, count, 100*c/count))
+
+
 def main():
-    # logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(message)s')
+    logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(message)s')
     e = Evaluator('DifferentialTesting/expert-results', 'samples', 'CACHE')
     e.load_records()
     e.eval(use_cache=True)
     # e.eval(use_cache=False)
 
 
+def main2():
+    e = Evaluator2('DifferentialTesting/expert-results/summary.json',
+                   'samples', 'CACHE')
+    # e.eval(use_cache=True)
+    e.eval(use_cache=False)
+
+
 if __name__ == '__main__':
     main()
+    # main2()

@@ -20,6 +20,7 @@ def plot(in_csv, out_file, linear=False):
     ax0.set_xlabel('Old SLOC')
 
     if not linear:
+        df = df.query('old_sloc > 0')
         ax0.set_xscale('log')
 
     sns.histplot(data=df, x='old_sloc', linewidth=0,
@@ -30,6 +31,7 @@ def plot(in_csv, out_file, linear=False):
     ax1.set_xlabel('New SLOC')
 
     if not linear:
+        df = df.query('new_sloc > 0')
         ax1.set_xscale('log')
 
     sns.histplot(data=df, x='new_sloc', linewidth=0,
@@ -51,7 +53,7 @@ if __name__ == '__main__':
                             formatter_class=ArgumentDefaultsHelpFormatter)
 
     parser.add_argument('-i', '--input', dest='in_csv', type=str,
-                        default='out-merged.csv',
+                        default='out.merged.csv',
                         help='specify input CSV file')
 
     parser.add_argument('-o', '--output', dest='out_file', type=str,

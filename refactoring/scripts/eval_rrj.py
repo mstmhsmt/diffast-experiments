@@ -65,7 +65,7 @@ def eval_rrj(oracle_path, ref_dir=REFACT_DIR, target_refs=TARGET_REF_LIST):
 
             for ref, oracle_vtbl in oracle_rtbl.items():
 
-                rrj_keyl = rtbl.get(ref, [])
+                rrj_keyl = [d['key'] for d in rtbl.get(ref, [])]
                 rrj_keys = set(rrj_keyl)
 
                 tp_keyl = [tuple(x) for x in oracle_vtbl.get('TP', [])]
@@ -125,7 +125,7 @@ def eval_rrj(oracle_path, ref_dir=REFACT_DIR, target_refs=TARGET_REF_LIST):
         if not rmtbl:
             to_be_removed.add(proj_id)
     for proj_id in to_be_removed:
-        del(missed_key_tbl[proj_id])
+        del missed_key_tbl[proj_id]
 
     print('missed keys:')
     for proj_id, rmtbl in missed_key_tbl.items():
@@ -155,7 +155,8 @@ def eval_rrj(oracle_path, ref_dir=REFACT_DIR, target_refs=TARGET_REF_LIST):
             recall = math.nan
         else:
             recall = ntp / natp
-        print(f'{ref:3s} {ntp:4d} {np:4d} {natp:4d} {nukn:4d}   {recall:4.2f} {prec[0]:4.2f}-{prec[1]:4.2f}')
+        print(f'{ref:3s} {ntp:4d} {np:4d} {natp:4d} {nukn:4d}'
+              f'   {recall:4.2f} {prec[0]:4.2f}-{prec[1]:4.2f}')
         total_ntp += ntp
         total_np += np
         total_natp += natp

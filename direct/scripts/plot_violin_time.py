@@ -125,7 +125,7 @@ def plot(in_csv, out_file, linear=False):
 
     ax.set_xticks([t.get_position()[0] for t in _tools],
                   labels=[tool_tbl[t] for t in tools],
-                  fontdict=fontdict)
+                  **fontdict)
 
     ax.set_xlabel(None)
     ax.set_ylabel('Time', fontdict=fontdict)

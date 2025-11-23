@@ -20,8 +20,15 @@ Consult the help for further details.
 $ scripts/shootout.py --help
 ```
 
+Merge the results.
+```
+$ scripts/merge_gt_da_results.py
+$ scripts/merge_csvs.py
+```
+
 ### Generating Figures
 ```
+$ scripts/conv_csv.py
 $ scripts/plot_violin_time.py
 $ scripts/plot_violin_diff.py
 ```

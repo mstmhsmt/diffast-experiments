@@ -10,6 +10,7 @@ from subprocess import run
 import time
 import multiprocessing as mp
 import math
+import psutil
 
 from sloccount import escape
 
@@ -29,11 +30,13 @@ EXCLUDED_TYPES_TBL = {
 
 MAX_NRETRIES = 3
 
+MAX_CPU_COUNT = 128
+
 IGNORE_MOVE = True
 
 
 try:
-    NPROCS = len(os.sched_getaffinity(0))
+    NPROCS = min(psutil.cpu_count(logical=False), MAX_CPU_COUNT)
 except Exception:
     NPROCS = os.cpu_count()
 
